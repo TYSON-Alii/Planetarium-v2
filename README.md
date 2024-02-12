@@ -14,9 +14,14 @@ Type `q help` for all commands.
 ![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-1.gif) 
 
 grove your empire with `q fuck`. 
+
 `q sacrifice man|woman` for blood. 
+
 `q dig` for collect your gems. 
+
 buy planet or something with `q shop` | `q buy [item]`
+
+
 `q view [integer id]` to view other planets
 
 `q view 1881`
