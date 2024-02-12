@@ -1,4 +1,7 @@
 ## Planetarium-v2
+
+[based on this project](https://github.com/TYSON-Alii/Planetarium) 
+
 You can view your special planet and play with your peoples.
 ### Commands
 Type `q help` for all commands. 
