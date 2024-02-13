@@ -20,7 +20,7 @@ grove your empire with `q fuck`.
 
 `q sacrifice man|woman` for blood. 
 
-`q dig` for collect your gems. 
+`q dig` to collect your gems. 
 
 buy planet or something with `q shop` | `q buy [item]`
 
