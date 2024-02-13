@@ -154,9 +154,9 @@ def planet(pla, fla):
   for i in range(nf):
     cout = out.copy()
     cim = Image.new("RGBA", (w, h), (0,0,0,255))
-    ir = i % 32
+    ir = i % w
     cim.paste(cout.crop((ir, 0, w, h)),(0,0))
-    cim.paste(cout.crop((0, 0, ir, h)),(32-ir,0))
+    cim.paste(cout.crop((0, 0, ir, h)),(w-ir,0))
     cout = cim
     #cout.paste(cim.rotate(-i), (0,0)) 
     p = pla.copy().rotate(i*5)
