@@ -41,7 +41,7 @@ def hsv(h, s, v):
 def limit(c):
   return ((c+1) if c < 0 else ((c-1) if c > 1 else c)) 
 def prob(p): return rint(0,100) < p
-def create_pla(yem=None, resize=True):
+def create_pla(yem=None, resize=True, base_col=None):
   if yem is None: yem = time.time()
   seed(yem)
   #init pla
@@ -52,6 +52,9 @@ def create_pla(yem=None, resize=True):
   #colors
   bc1 = uf(0,1)
   bc2 = limit(bc1+choice([uf(1/16,1/2), uf(-1/2,-1/16)])) 
+  if base_col is not None:
+    bc1 = base_col
+    bc2 = limit(bc1+choice([uf(1/40,1/30), uf(-1/40, -1/30)]))
   rl = rint(1,7) + uf(0,1)
   rb = uf(-0.2,0.2)
   cw, cb = uf(0.4,0.95), uf(0.6,0.95)
@@ -79,7 +82,7 @@ def create_pla(yem=None, resize=True):
   cr = uf(0, 1)
   cw, cb = uf(0.4,0.95), uf(0.4,0.95)
   rot = rint(0,360) 
-  r = rint(0,3)
+  r = rint(0,3) if base_col is None else 0
   qs = []
   for n in range(r):
     rs = rint(300,500)
@@ -133,7 +136,8 @@ def create_pla(yem=None, resize=True):
     fim.paste(out, (0,0), out)
     fim.paste(im, (500,0))
     fim.paste(nim, (0,500))
-  return [out,im,nim,yem,fim]  
+  star = uf(0.02,0.1)
+  return [out,im,nim,yem,fim,star,pla]  
 
 def planet(pla, fla):
   gif = []
@@ -146,16 +150,16 @@ def planet(pla, fla):
       if rint(0,pr) == 7:
         c = hsv(uf(0,1),0.1,1)
         pix[x,y] = alpha(c, rint(100,250))
-  nf = 22
+  nf = 72
   for i in range(nf):
     cout = out.copy()
     cim = Image.new("RGBA", (w, h), (0,0,0,255))
-    fc = w//nf
-    cim.paste(cout.crop((i*fc, 0, w, h)),(0,0))
-    cim.paste(cout.crop((0, 0, i*fc, h)),((nf-i)*fc,0))
+    ir = i % 32
+    cim.paste(cout.crop((ir, 0, w, h)),(0,0))
+    cim.paste(cout.crop((0, 0, ir, h)),(32-ir,0))
     cout = cim
     #cout.paste(cim.rotate(-i), (0,0)) 
-    p = pla.copy().rotate(i*4)
+    p = pla.copy().rotate(i*5)
     cout.paste(p, (0,0), p)
     cout.paste(fla, (0,0))
     cout = cout.resize((350,350), resample=Image.NEAREST)
@@ -166,7 +170,7 @@ def blend(c1, c2, per):
   o1 = per/100
   o2 = (100 - o1)/100
   return (c1[0]*o1 + c2[0]*o2, c1[1]*o1 + c2[1]*o2, c1[2]*o1 + c2[2]*o2, 255)
-def sky(t):
+def sky(t, sun, at):
   ss = 16
   sx, sy = 2*ss, ss
   im = Image.new('RGBA', (sx, sy), (0, 0, 0, 255))
@@ -185,14 +189,15 @@ def sky(t):
     e = int((i+1)*sy/lcol1)
     for y in range(s, e):
       for x in range(sx):
-        if (sin(x/4)+1)/ws + y/16 > 1:
-          pix[x,y] = (0,0,0,0)
-          continue
         cc = c1 if rint(0,80) != 7 else blend(c1, (255,255,255), 60) 
         pix[x,y] = cast(blend(cc,(0,0,0),t))
       c1 = sub(c1, fac) 
+  im.paste(sun, at, sun)
+  for x in range(sx):
+    for y in range(sy):
+      if (sin(x/4)+1)/ws + y/16 > 1:
+          pix[x,y] = (0,0,0,0)
   return im
-
 def rock(s=None):
   #if s is None: s = time.time()
   #seed(s)
@@ -215,9 +220,16 @@ gezegen bos gorunuyor
 def inside(u):
   seed(u["id"])
   gif = []
-  pl = create_pla(u["pl"], False)[1]
+  pli = create_pla(u["pl"], False)
+  pl = pli[1]
+  scl = rint(8,10)
+  star = create_pla(pli[5], False, pli[5])[6].resize((scl,scl), resample=Image.NEAREST)
   t = int(time.strftime("%S")) 
-  sk = sky(abs(t-30)/30*100)
+  at = abs(t-30)/30*100
+  pt = (t-30)/30+0.5
+  psx = int(cos(pt*3.14)*rint(10,12)+8)
+  psy = int(sin(pt*3.14)*7+8)
+  sk = sky(at, star, (psx,psy)) 
   pl.paste(sk, (0,0), sk)
   """ rocks
   rc = 0#rint(0, 5)
@@ -282,7 +294,7 @@ def save_im(im, fn="anan"):
     
 def save_gif(gif, fn="anan"):
   with io.BytesIO() as bin:
-    gif[0].save(bin, format="GIF", save_all=True, append_images=gif[1:], optimize=False, duration=250, loop=0)
+    gif[0].save(bin, format="GIF", save_all=True, append_images=gif[1:], optimize=False, duration=100, loop=0)
     bin.seek(0)
     return discord.File(fp=bin, filename=fn+".gif") 
 
@@ -323,7 +335,7 @@ async def on_message(messages):
     pop = quser["pM"]+quser["pW"]
     if mess == "q help":
       await ch.send(help_message)
-    elif mess == "q mine":
+    elif mess == "q mein":
       pla = my_pla(quser["pl"], quser)
       m = await ch.send(file=save_gif(pla[0]), content=f"""```py
 {user.name}'s planet:
@@ -338,8 +350,13 @@ async def on_message(messages):
       im = inside(quser)
       m = await ch.send(file=save_gif(im)) 
     elif mess.startswith("q view") and len(mesl) == 3:
-      s = int(mesl[2])
-      im = create_pla(s, False) 
+      s = 0
+      b = None
+      if mesl[2][0] == "#":
+        s = b = float(mesl[2][1:])/360
+      else:
+        s = int(mesl[2])
+      im = create_pla(s, False, b) 
       im = planet(im[0], im[2])
       m = await ch.send(file=save_gif(im), content="` how's it goin'  brah? `") 
       await add_react(m)
@@ -380,6 +397,7 @@ your current blood is {quser['blood']-1}
 current rubs is {quser['rb']+1} now.
 ```""")
     elif id == admin_id and mess.startswith("q give"):
+      mesl = mes.content.split()
       wt = mesl[2]
       mid = int(mesl[3])
       hw = int(mesl[4])
@@ -387,9 +405,9 @@ current rubs is {quser['rb']+1} now.
       change(u, wt, hw)
     elif mess.startswith("q buy") and quser["rb"] > 0:
       if len(mesl) == 4 and mesl[2] == "planet":
-        if quser["rb"] > 100 and quser["blood"] > 50:
-          change(quser, "rb", quser["rb"]-100)
-          change(quser, "blood", quser["blood"]-50)
+        if quser["rb"] > 10 and quser["blood"] > 5:
+          change(quser, "rb", quser["rb"]-10)
+          change(quser, "blood", quser["blood"]-5)
           change(quser, "pl", int(mesl[3]))
           await mes.reply("successfuly! gule gule kullan kardesim")
         else:
@@ -409,7 +427,7 @@ current rubs is {quser['rb']+1} now.
       s = """```py
 type `q buy [item]` to buy something
 1. man | women : 1 rub
-2. planet [integer] : 100 rub 50 blood
+2. planet [integer] : 10 rub 5 blood
 ```"""
       await ch.send(s)
 client.run(api)
