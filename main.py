@@ -311,7 +311,7 @@ async def on_ready():
 async def on_reaction_add(r, user):
   pass
 help_message = """```cpp
-type `q mine` to view your planet and stats. 
+type `q mein` to view your planet and stats. 
 type `q view [integer]` to view another planets.
 → you can also type `q fuck` to grove your population
 → you can kill your peoples by typing `q sacrifice [man|women]`
