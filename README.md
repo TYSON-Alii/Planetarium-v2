@@ -1,4 +1,4 @@
-## Planetarium-v2
+## Planetarium-v2 [Discord Bot] 
 
 [based on this project](https://github.com/TYSON-Alii/Planetarium) 
 
