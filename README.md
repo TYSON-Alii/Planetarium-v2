@@ -10,11 +10,11 @@ Type `q help` for all commands.
 
 ![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/a.jpg) 
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-mein.gif) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-mein2.gif) 
 
 `q inside`
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-inside.gif) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-inside2.gif) 
 
 grove your empire with `q fuck`. 
 
