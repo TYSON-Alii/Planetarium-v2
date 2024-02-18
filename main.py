@@ -8,22 +8,6 @@ from math import *
 from colorsys import hsv_to_rgb 
 uf = uniform
 rint = randint 
-##### my preferences ######
-admin_id = 1197983067726426204
-api = os.environ['API']
-intents = discord.Intents.default()
-intents.message_content = True
-client = discord.Client(intents=intents)
-mgdb = os.environ["MGDB"]
-mclient = MongoClient(mgdb, server_api=ServerApi('1'))
-try:
-    mclient.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
-db = mclient.users # you have to create a database called users
-users = db.users # you have to create a collection called users
-def wait(): time.sleep(0.8)  
 def mul(c1, c2):
   return (c1[0] * c2[0], c1[1] * c2[1], c1[2] * c2[2])
 def sub(c1, c2):
@@ -40,7 +24,22 @@ def hsv(h, s, v):
   return to_rgb(hsv_to_rgb(h, s, v))
 def limit(c):
   return ((c+1) if c < 0 else ((c-1) if c > 1 else c)) 
-def prob(p): return rint(0,100) < p
+def prob(p): return randint(0,100) < p
+##### my preferences ######
+admin_id = 1197983067726426204
+api = os.environ['API']
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
+mgdb = os.environ["MGDB"]
+mclient = MongoClient(mgdb, server_api=ServerApi('1'))
+try:
+    mclient.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+db = mclient.users # you have to create a database called users
+users = db.users # you have to create a collection called users
 def create_pla(yem=None, resize=True, base_col=None):
   if yem is None: yem = time.time()
   seed(yem)
@@ -137,10 +136,12 @@ def create_pla(yem=None, resize=True, base_col=None):
     fim.paste(im, (500,0))
     fim.paste(nim, (0,500))
   star = uf(0.02,0.1)
-  return [out,im,nim,yem,fim,star,pla]  
+  esmoone = r==0 and rint(0,3) == 1
+  return [out,im,nim,yem,fim,star,pla,esmoone]  
 
-def planet(pla, fla):
+def planet(pla, fla, moon=False):
   gif = []
+  rsize = 350
   w, h = pla.size
   out = Image.new("RGBA", (w, h), (0,0,0,255))
   pix = out.load()
@@ -150,7 +151,12 @@ def planet(pla, fla):
       if rint(0,pr) == 7:
         c = hsv(uf(0,1),0.1,1)
         pix[x,y] = alpha(c, rint(100,250))
-  nf = 72
+  mim = None
+  if moon:
+    mim = create_pla(random(), resize=False)[6].resize((12,12), resample=Image.NEAREST)
+  mrot = uf(0,3.14)
+  away = rint(32,45)
+  nf = w
   for i in range(nf):
     cout = out.copy()
     cim = Image.new("RGBA", (w, h), (0,0,0,255))
@@ -159,11 +165,16 @@ def planet(pla, fla):
     cim.paste(cout.crop((0, 0, ir, h)),(w-ir,0))
     cout = cim
     #cout.paste(cim.rotate(-i), (0,0)) 
-    p = pla.copy().rotate(i*5)
+    p = pla.copy().rotate(i*(360/nf))
     cout.paste(p, (0,0), p)
+    if moon:
+      cmim = mim.rotate(i*3)
+      cout.paste(cmim, (int(w//2+cos(mrot)*away) , int(h//2+sin(mrot)*away)), cmim)
+      mrot += 3.14/nf*2
     cout.paste(fla, (0,0))
-    cout = cout.resize((350,350), resample=Image.NEAREST)
+    cout = cout.resize((rsize,rsize), resample=Image.NEAREST)
     gif.append(cout)
+  print(len(gif)*(rsize**2*4) / (1024*1024)) 
   return gif
 
 def blend(c1, c2, per):
@@ -171,8 +182,8 @@ def blend(c1, c2, per):
   o2 = (100 - o1)/100
   return (c1[0]*o1 + c2[0]*o2, c1[1]*o1 + c2[1]*o2, c1[2]*o1 + c2[2]*o2, 255)
 def sky(t, sun, at):
-  ss = 16
-  sx, sy = 2*ss, ss
+  ss = 48
+  sx, sy = 2*ss, (3*ss)//2
   im = Image.new('RGBA', (sx, sy), (0, 0, 0, 255))
   pix = im.load()
   ws = rint(4,8)
@@ -189,78 +200,130 @@ def sky(t, sun, at):
     e = int((i+1)*sy/lcol1)
     for y in range(s, e):
       for x in range(sx):
-        cc = c1 if rint(0,80) != 7 else blend(c1, (255,255,255), 60) 
-        pix[x,y] = cast(blend(cc,(0,0,0),t))
+        pix[x,y] = cast(blend(c1,(0,0,0),t))
+        if rint(0,60) == 7:
+          pix[x,y] = cast(blend(pix[x,y], (255,255,255), 90)) 
       c1 = sub(c1, fac) 
   im.paste(sun, at, sun)
   for x in range(sx):
     for y in range(sy):
-      if (sin(x/4)+1)/ws + y/16 > 1:
+      if (sin(x/16)+1)/ws + y/sy > 1:
           pix[x,y] = (0,0,0,0)
   return im
-def rock(s=None):
-  #if s is None: s = time.time()
-  #seed(s)
-  sz = rint(3,7)
-  out = Image.new("RGBA", (sz, sz), (0,0,0,0))
-  pix = out.load()
-  for x in range(sz):
-    for y in range(sz):
-      c = hsv(uf(0,1), uf(0.05,0.2), uf(0.05,0.35))
-      pix[x,y] = c
-  pix[0,0] = (0,0,0,0)
-  pix[0,sz-1] = (0,0,0,0)
-  return out
 """ kendime NOT
+halkasi olmayan gezegenlere ay lazim
 kaya sistemi hos karsilanmadi
 gece gunduz sistemi eklendi gelisebilir
 agac ve lake sistemi icin henuz erken
 gezegen bos gorunuyor
 """
+def uzayli(yem, c):
+  seed(yem)
+  im = Image.new("RGBA", (4,8), (0,0,0,0))
+  #c = (255,255,255)
+  #foot
+  fh = rint(1,3)
+  fx = rint(0,2)
+  for h in range(fh):
+    im.putpixel((fx,h), c) 
+  #body
+  bh = rint(1,3)
+  for h in range(bh):
+    for x in range(3-fx):
+      im.putpixel((fx+1+x,h+fh), c)
+  #arm
+  ax = rint(1,3)
+  for w in range(ax):
+    im.putpixel((fx-w,fh+bh-1), c)
+  #head
+  eh = rint(1,8-fh-bh)
+  ex = rint(1,(ax-1) if ax != 1 else 2)
+  for h in range(eh):
+    for x in range(ex):
+      im.putpixel((3-x,fh+bh+h), c)
+      
+  out = Image.new("RGBA",(8,8), (0,0,0,0))
+  out.paste(im, (0,0))
+  out.paste( im.transpose(Image.FLIP_LEFT_RIGHT), (4,0))
+  out = out.transpose(Image.FLIP_TOP_BOTTOM)
+  seed()
+  return out
 def inside(u):
-  seed(u["id"])
   gif = []
   pli = create_pla(u["pl"], False)
   pl = pli[1]
-  scl = rint(8,10)
+  tpl = Image.new("RGBA", (96,96), (0,0,0,0))
+  for x in range(0,3):
+    for y in range(0,3):
+      tpl.paste(pl, (x*32, y*32))
+  pl = tpl
+  scl = rint(24,30)
   star = create_pla(pli[5], False, pli[5])[6].resize((scl,scl), resample=Image.NEAREST)
   t = int(time.strftime("%S")) 
   at = abs(t-30)/30*100
   pt = (t-30)/30+0.5
-  psx = int(cos(pt*3.14)*rint(10,12)+8)
-  psy = int(sin(pt*3.14)*7+8)
+  psx = int(cos(pt*3.14)*rint(30,36)+48)
+  psy = int(sin(pt*3.14)*24+48)
   sk = sky(at, star, (psx,psy)) 
   pl.paste(sk, (0,0), sk)
-  """ rocks
-  rc = 0#rint(0, 5)
-  for _ in range(rc):
-    roc = rock()
-    pl.paste(roc, (rint(-2,32),rint(-2,32)), roc)
-  """
   mans = u["pM"]
   wmans = u["pW"]
   def cp(wm):
     cl = hsv(uf(0.41, 0.76), uf(0.8,1), 0.4) if wm else hsv(uf(0.80, 1),uf(0.8, 1), 0.4)
-    skin = to_rgb(hsv_to_rgb(uf(0, 0.085), 0.40, 0.75))  
-    per = Image.new("RGBA", (1,3), cl)
-    per.putpixel((0,0), skin)
-    return [rint(4,28),rint(18,28), per]
+    return [rint(4,90),rint(72,90), uzayli(u["id"], cl)]
   mpos = [cp(True) for _ in range(mans)]
   wpos = [cp(False) for _ in range(wmans)]
   nf = 15
+  mv = 2
   for _ in range(nf):
     p = pl.copy()
     for m in mpos:
-      p.paste(m[2], (m[0],m[1]))
-      m[0] += rint(-1,1)
-      m[1] += rint(-1,1)
+      p.paste(m[2], (m[0],m[1]), m[2])
+      m[0] += rint(-mv,mv)
+      m[1] += rint(-mv,mv)
+      if m[1] < 72: m[1] = 72
     for w in wpos:
-      p.paste(w[2], (w[0],w[1]))
-      w[0] += rint(-1,1)
-      w[1] += rint(-1,1)
+      p.paste(w[2], (w[0],w[1]), w[2])
+      w[0] += rint(-mv,mv)
+      w[1] += rint(-mv,mv)
+      if w[1] < 72: w[1] = 72
     p = p.resize((350,350), resample=Image.NEAREST)
     gif.append(p)
   return gif
+import noise
+def perlin(width, height):
+  scale = 10.0
+  octaves = 50
+  persistence = 0.5
+  lacunarity = 2.0
+  world = []
+  for y in range(height):
+    row = []
+    for x in range(width):
+      n = noise.pnoise2(x/scale, y/scale, octaves=octaves, persistence=persistence, lacunarity=lacunarity, repeatx=1024, repeaty=1024, base=0)
+      row.append(n)
+    world.append(row)
+  return world
+def inside2(u):
+  seed(u["pl"])
+  a, b = rint(-2,0), rint(-2,0)
+  bc1 = uf(0,1)
+  bc2 = limit(bc1+choice([uf(1/16,1/2), uf(-1/2,-1/16)]))
+  print(bc1, bc2)
+  p = perlin(96,96)
+  mx = max([max(row) for row in p])
+  im = Image.new("RGBA", (96, 96), (0,0,0,0))
+  pix = im.load()
+  for x in range(96):
+    for y in range(96):
+      pl = (p[x][y]+mx)/2
+      c = bc1*(pl/mx) + bc2*(1-pl/mx)
+      pix[x,y] = hsv(limit(c), 0.8, 0.8)
+      #c1 = hsv(limit(bc1), 0.8, 0.8) 
+      #c2 = hsv(limit(bc2), 0.8, 0.8)
+      #pix[x,y] = cast(blend(c2, c1, limit(p[x][y])*100)) 
+    print()
+  return im.resize((350,350), resample=Image.NEAREST)
 
 def create_user(id):
   global users
@@ -280,11 +343,6 @@ def change(quser, what, value):
   },{
     '$set': {what: value}
   }, upsert=False)
-  
-def my_pla(id, user):
-  im = create_pla(id, False)
-  im = planet(im[0], im[2])
-  return im, user["blood"], user["rb"], user["pM"], user["pW"]
 
 def save_im(im, fn="anan"):
   with io.BytesIO() as bin:
@@ -336,18 +394,20 @@ async def on_message(messages):
     if mess == "q help":
       await ch.send(help_message)
     elif mess == "q mein":
-      pla = my_pla(quser["pl"], quser)
-      m = await ch.send(file=save_gif(pla[0]), content=f"""```py
-{user.name}'s planet:
-Δ blood = {pla[1]}
-Δ ruby = {pla[2]}
+      im = create_pla(quser["pl"], False) 
+      im = planet(im[0], im[2], im[7]) 
+      m = await ch.send(file=save_gif(im), content=f"""```py
+{user.name}'s planet [id:{quser["pl"]}]:
+Δ blood = {quser["blood"]}
+Δ ruby = {quser["rb"]}
 Δ population = {pop}
-  → ♂️ man : {pla[3]}
-  → ♀️ woman : {pla[4]}
+  → ♂️ man : {quser["pM"]}
+  → ♀️ woman : {quser["pW"]}
 ```""")
       await add_react(m)
     elif mess == "q inside":
       im = inside(quser)
+      im[0].save("yarak.gif", "GIF", save_all=True, append_images=im[1:], optimize=False, duration=100, loop=0)
       m = await ch.send(file=save_gif(im)) 
     elif mess.startswith("q view") and len(mesl) == 3:
       s = 0
@@ -357,7 +417,7 @@ async def on_message(messages):
       else:
         s = int(mesl[2])
       im = create_pla(s, False, b) 
-      im = planet(im[0], im[2])
+      im = planet(im[0], im[2], im[7])
       m = await ch.send(file=save_gif(im), content="` how's it goin'  brah? `") 
       await add_react(m)
     elif mess == "q fuck":
