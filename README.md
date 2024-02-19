@@ -27,14 +27,27 @@ buy planet or something with `q shop` | `q buy [item]`
 
 `q view [integer id]` to view other planets
 
-`q view 1881`
+→ `q view 1881`
 
 ![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-1881.gif) 
 
-`q view 3169`
+→ `q view 3169`
 
 ![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-3169.gif) 
 
-`q view #44`
+→ `q view #44`
 
 ![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-10.gif) 
+
+
+`q set [seed]` to view 9 planet together. 
+
+→ `q set 12`
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-12.gif) 
+
+`q seti [seed] [count]` to view [count]² planet together. 
+
+→ `q seti 1738193918472 10`
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-seti.png) 
