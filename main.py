@@ -1,4 +1,4 @@
-import os, io, time
+import os, io, time, sys
 from PIL import Image, ImageDraw
 import discord
 from pymongo.mongo_client import MongoClient
@@ -139,7 +139,7 @@ def create_pla(yem=None, resize=True, base_col=None):
   esmoone = r==0 and rint(0,3) == 1
   return [out,im,nim,yem,fim,star,pla,esmoone]  
 
-def planet(pla, fla, moon=False):
+def planet(pla, fla, moon=False, resize_=True):
   gif = []
   rsize = 350
   w, h = pla.size
@@ -172,11 +172,49 @@ def planet(pla, fla, moon=False):
       cout.paste(cmim, (int(w//2+cos(mrot)*away) , int(h//2+sin(mrot)*away)), cmim)
       mrot += 3.14/nf*2
     cout.paste(fla, (0,0))
-    cout = cout.resize((rsize,rsize), resample=Image.NEAREST)
+    if resize_:
+      cout = cout.resize((rsize,rsize), resample=Image.NEAREST)
     gif.append(cout)
   print(len(gif)*(rsize**2*4) / (1024*1024)) 
   return gif
 
+def set_pla(yem):
+  seed(yem)
+  w = 96
+  seeds = [rint(-1*sys.maxsize, sys.maxsize) for _ in range(9)]
+  crats = [create_pla(seeds[i], False) for i in range(9)]
+  plas = [planet(crats[i][0], crats[i][2], crats[i][7], False) for i in range(9)]
+  gif = []
+  im = Image.new("RGBA", (w*3, w*3), (0,0,0,0))
+  for n in range(w):
+    for i in range(3):
+      for j in range(3):
+        im.paste(plas[i*3+j][n], (w*i, w*j))
+    gif.append(im.resize((w*3*3, w*3*3), resample=Image.NEAREST))
+  return gif, seeds
+
+def set_im(yem, count):
+  seed(yem)
+  w = 96
+  #count = 20
+  seeds = [rint(-1*sys.maxsize, sys.maxsize) for _ in range(count**2)]
+  crats = [create_pla(seeds[i], False) for i in range(count**2)]
+  out = Image.new("RGBA", (w*count, w*count), (0,0,0,255))
+  pix = out.load()
+  for x in range(w*count):
+    for y in range(w*count):
+      if rint(0,65) == 7:
+        pix[x,y] = (255,255,255)
+        
+  for i in range(count):
+    for j in range(count):
+      pos = i*count+j
+      p = crats[pos][0]
+      f = crats[pos][2]
+      out.paste(p, (w*i, w*j), p)
+      out.paste(f, (w*i, w*j), f)
+  return out.resize((w*count*2,w*count*2),resample=Image.NEAREST), seeds
+  
 def blend(c1, c2, per):
   o1 = per/100
   o2 = (100 - o1)/100
@@ -346,7 +384,7 @@ def change(quser, what, value):
 
 def save_im(im, fn="anan"):
   with io.BytesIO() as bin:
-    im.save(bin, "PNG", quality=90, optimize=True, progressive=True)
+    im.save(bin, "PNG", quality=100, optimize=True, progressive=True)
     bin.seek(0)
     return discord.File(fp=bin, filename=fn+'.png')
     
@@ -420,6 +458,17 @@ async def on_message(messages):
       im = planet(im[0], im[2], im[7])
       m = await ch.send(file=save_gif(im), content="` how's it goin'  brah? `") 
       await add_react(m)
+    elif mess.startswith("q set") and len(mesl) == 3:
+      setp = set_pla(mesl[2])
+      im = setp[0]
+      s = f"```py\n{setp[1]}\n```" 
+      m = await ch.send(file=save_gif(im),content=s)
+    elif mess.startswith("q seti") and len(mesl) == 4:
+      setp = set_im(mesl[2], int(mesl[3]))
+      im = setp[0]
+      s = f"```py\n{setp[1]}\n```" 
+      if len(s) > 1000: s = s[:1000]
+      m = await ch.send(file=save_im(im),content=s)
     elif mess == "q fuck":
       if quser["blood"] <= 0:
         await mes.reply("you have no blood")
