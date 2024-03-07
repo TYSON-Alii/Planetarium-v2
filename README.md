@@ -14,7 +14,7 @@ Type `q help` for all commands.
 
 `q inside`
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-inside2.gif) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan.gif) 
 
 grove your empire with `q fuck`. 
 
