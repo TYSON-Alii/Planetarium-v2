@@ -55,16 +55,16 @@ buy planet or something with `q shop` | `q buy [item]`
 
 ## Some Beautiful Planets
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av1.png) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av1.gif) 
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av2.png)  
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av2.gif)  
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av3.png) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av3.gif) 
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av4.png) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av4.gif) 
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av5.png) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av5.gif) 
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av6.png) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av6.gif) 
 
-![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av7.png) 
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av7.gif) 
