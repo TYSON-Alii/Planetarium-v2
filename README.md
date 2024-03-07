@@ -51,3 +51,20 @@ buy planet or something with `q shop` | `q buy [item]`
 → `q seti 1738193918472 10`
 
 ![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/anan-seti.png) 
+
+
+## Some Beautiful Planets
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av1.png) 
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av2.png)  
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av3.png) 
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av4.png) 
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av5.png) 
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av6.png) 
+
+![img](https://github.com/TYSON-Alii/Planetarium-v2/blob/main/media/av7.png) 
